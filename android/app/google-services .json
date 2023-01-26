@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "586882765354",
+    "project_id": "ukeep-a63d9",
+    "storage_bucket": "ukeep-a63d9.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:586882765354:android:ae914a8d5407d6f02d6953",
+        "android_client_info": {
+          "package_name": "com.example.ukeep"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "586882765354-orh5e3iv5agqf29de0hqj4vf90dssqbq.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ukeep",
+            "certificate_hash": "4c6890527da343abb578aa8db7ce74415a7ff0d0"
+          }
+        },
+        {
+          "client_id": "586882765354-vgf8gcetlkfhldmrsp66dgc27u9hpphs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFK10CNGyAXJodwvX6zP0qg9CE6FEt33Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "586882765354-6e60e8d8cddjhgrbe9o5cs117cgte2v8.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "586882765354-hmp1gp95kf2f100hfs4b9n2t3j6efpho.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.ukeep"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
