@@ -35,7 +35,7 @@ class Note{
       title:_snapShot.get('title'),
       id: _snapShot.get('id'),
       text: _snapShot.get('text'), 
-      color: Color(_snapShot.get('color') as int) , 
+      color: Color(_snapShot.get('color')) , 
       createdAt:_snapShot.get('createdAt'),
       modifiedAt:_snapShot.get('modifiedAt'),
       noteState: NoteState.values[_snapShot.get('noteState')]
@@ -46,7 +46,7 @@ class Note{
     'title': title,
     'id': id,
     'text':text,
-    'color': color.toString(),
+    'color': color.value,
     'createdAt': createdAt.toString(),
     'modifiedAt': modifiedAt.toString(),
     'noteState': noteState.index
