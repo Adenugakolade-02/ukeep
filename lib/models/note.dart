@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/foundation.dart';
 
@@ -40,34 +41,27 @@ extension NoteStateX on NoteState{
   }
 }
 
+
 class Note{
+  final String? id;
   final String title;
   final String text;
   final Color color;
-  DateTime? createdAt;
-  DateTime? modifiedAt;
+  final DateTime createdAt;
+  final DateTime modifiedAt;
   final NoteState noteState;
 
   Note({required this.title,  
         required this.text, 
-        required this.color,
         required this.noteState,
+        Color? color,
+        this.id,
         DateTime? createdAt, 
         DateTime? modifiedAt, 
         }): 
-              this.createdAt= createdAt ?? DateTime.now(),
-              this.modifiedAt = modifiedAt ?? DateTime.now();
-
-  factory Note.fromFirebase(QueryDocumentSnapshot _snapShot){
-    return Note(
-      title:_snapShot.get('title'),
-      text: _snapShot.get('text'), 
-      color: Color(_snapShot.get('color')) , 
-      createdAt:_snapShot.get('createdAt'),
-      modifiedAt:_snapShot.get('modifiedAt'),
-      noteState: NoteState.values[_snapShot.get('noteState')]
-      );
-  }
+              createdAt= createdAt ?? DateTime.now(),
+              modifiedAt = modifiedAt ?? DateTime.now(),
+              color = color ?? Colors.white;
 
   Map<String, dynamic> toJson() => {
     'title': title,
@@ -78,12 +72,12 @@ class Note{
     'noteState': noteState.index
   };
 
-  Note editNote(
+  Note editNote({
     String? title,
     String? text,
     Color? color,
     NoteState? state
-  ){
+  }){
     return Note(
       title: title ?? this.title,  
       text: text ?? this.text, 
@@ -96,6 +90,7 @@ class Note{
 
   @override
   bool operator ==(other) => other is Note &&
+  other.id == id &&
   other.title == title &&
   other.text == text &&
   other.noteState == noteState &&
@@ -104,8 +99,7 @@ class Note{
   other.modifiedAt == modifiedAt;
   
   @override
-  int get hashCode => Object.hash(title, text, noteState, color, createdAt, modifiedAt);
+  int get hashCode => id.hashCode ?? super.hashCode;
   
-
 
 }
