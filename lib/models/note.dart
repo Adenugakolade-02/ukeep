@@ -4,14 +4,43 @@ import 'package:flutter/foundation.dart';
 
 
 enum NoteState{
-  archived,
   others,
-  deleted,
-  pinned
+  pinned,
+  archieved,
+  deleted
+}
+
+extension NoteStateX on NoteState{
+  bool get canCreate => this <= NoteState.pinned;
+  bool get canEdit => this < NoteState.deleted;
+
+  bool operator <(NoteState other) => (index) < (other.index);
+  bool operator <=(NoteState other) => (index) <= (other.index);
+
+  String get message {
+    switch (this){
+      case NoteState.archieved:
+        return 'note archieved';
+      case NoteState.deleted:
+        return 'note moved to bin';
+      default:
+        return '';
+    }
+  }
+
+  String get filterName{
+    switch (this){
+      case NoteState.archieved:
+        return 'Archeive';
+      case NoteState.deleted:
+        return 'Bin';
+      default:
+        return '';
+    }
+  }
 }
 
 class Note{
-  final String id;
   final String title;
   final String text;
   final Color color;
@@ -19,8 +48,7 @@ class Note{
   DateTime? modifiedAt;
   final NoteState noteState;
 
-  Note({required this.title, 
-        required this.id, 
+  Note({required this.title,  
         required this.text, 
         required this.color,
         required this.noteState,
@@ -33,7 +61,6 @@ class Note{
   factory Note.fromFirebase(QueryDocumentSnapshot _snapShot){
     return Note(
       title:_snapShot.get('title'),
-      id: _snapShot.get('id'),
       text: _snapShot.get('text'), 
       color: Color(_snapShot.get('color')) , 
       createdAt:_snapShot.get('createdAt'),
@@ -44,7 +71,6 @@ class Note{
 
   Map<String, dynamic> toJson() => {
     'title': title,
-    'id': id,
     'text':text,
     'color': color.value,
     'createdAt': createdAt.toString(),
@@ -59,8 +85,7 @@ class Note{
     NoteState? state
   ){
     return Note(
-      title: title ?? this.title, 
-      id: id , 
+      title: title ?? this.title,  
       text: text ?? this.text, 
       color: color ?? this.color, 
       noteState: state ?? this.noteState,
@@ -68,6 +93,19 @@ class Note{
       modifiedAt: DateTime.now()
       );
   }
+
+  @override
+  bool operator ==(other) => other is Note &&
+  other.title == title &&
+  other.text == text &&
+  other.noteState == noteState &&
+  other.color == color &&
+  other.createdAt == createdAt &&
+  other.modifiedAt == modifiedAt;
+  
+  @override
+  int get hashCode => Object.hash(title, text, noteState, color, createdAt, modifiedAt);
+  
 
 
 }
