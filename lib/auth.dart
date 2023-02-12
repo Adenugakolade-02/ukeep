@@ -6,6 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 // import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:ukeep/models.dart';
+import 'package:ukeep/screens/homescreen.dart';
 // import 'firebase_options.dart';
 
 class AuthScreens extends StatelessWidget {
@@ -18,7 +21,9 @@ class AuthScreens extends StatelessWidget {
         if (snapshot.hasData) {
           debugPrint("email ${snapshot.data?.email}");
           debugPrint("userid ${snapshot.data?.uid}");
-          return const HomeScreen();
+          debugPrint('${snapshot.data?.photoURL}');
+          Provider.of<UserData>(context).userSet = snapshot.data as User;
+          return const Homescren();
         } else {
           return SignInScreen(
             headerBuilder: (context, constraints, shrinkOffset) {
@@ -41,16 +46,16 @@ class AuthScreens extends StatelessWidget {
       });
 }
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+// class HomeScreen extends StatelessWidget {
+//   const HomeScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(actions: <Widget>[SignOutButton()]),
-      body: Column(
-        children: const [Text("Welcome to the home screen")],
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(actions: <Widget>[SignOutButton()]),
+//       body: Column(
+//         children: const [Text("Welcome to the home screen")],
+//       ),
+//     );
+//   }
+// }

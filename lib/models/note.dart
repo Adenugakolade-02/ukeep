@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/foundation.dart';
+import 'package:ukeep/models/transactions.dart';
 
 
 enum NoteState{
@@ -15,7 +16,7 @@ extension NoteStateX on NoteState{
   bool get canCreate => this <= NoteState.pinned;
   bool get canEdit => this < NoteState.deleted;
 
-  bool operator <(NoteState other) => (index) < (other.index);
+  bool operator < (NoteState other) => (index) < (other.index);
   bool operator <=(NoteState other) => (index) <= (other.index);
 
   String get message {
@@ -42,7 +43,7 @@ extension NoteStateX on NoteState{
 }
 
 
-class Note{
+class Note extends ChangeNotifier{
   final String? id;
   final String title;
   final String text;
@@ -63,6 +64,8 @@ class Note{
               modifiedAt = modifiedAt ?? DateTime.now(),
               color = color ?? Colors.white;
 
+  static List<Note?> fromQuery(QuerySnapshot query) => query.toNotes();
+
   Map<String, dynamic> toJson() => {
     'title': title,
     'text':text,
@@ -78,6 +81,7 @@ class Note{
     Color? color,
     NoteState? state
   }){
+    notifyListeners();
     return Note(
       title: title ?? this.title,  
       text: text ?? this.text, 
@@ -101,5 +105,5 @@ class Note{
   @override
   int get hashCode => id.hashCode ?? super.hashCode;
   
-
+  
 }
