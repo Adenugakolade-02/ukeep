@@ -76,6 +76,8 @@ class Note extends ChangeNotifier{
 
   static List<Note?> fromQuery(QuerySnapshot query) => query.toNotes();
 
+  bool get pinned => noteState == NoteState.pinned;
+
   Map<String, dynamic> toJson() => {
     'title': title,
     'text':text,

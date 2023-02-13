@@ -66,8 +66,8 @@ extension FireTransaction on Note{
 
 
 extension FromFireStore on QueryDocumentSnapshot{
-  Note? toNote(){
-    if (!exists) return null;
+  Note toNote(){
+    // if (!exists) return null;
     final data = this.data() as QueryDocumentSnapshot<Object?>;
     return Note(
       id: id,

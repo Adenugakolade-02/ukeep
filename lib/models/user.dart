@@ -5,6 +5,7 @@ class UserData extends ChangeNotifier{
   String uid;
   String name;
   String photoURL;
+  UserMetadata? metadata;
   // UserData({String? uid, String? name, String? photoUrl}):
                                                 // uid=uid??'', 
                                                 // name=name??'', 
@@ -15,16 +16,18 @@ class UserData extends ChangeNotifier{
   //     uid:user.uid, 
   //     name:user.email!.split('.')[0].toString(),
   //     photoUrl: user.photoURL);
-  Map<String,String> get userD => {
+  Map<String, dynamic> get userD => {
     'uid': uid,
     'name': name,
-    'photoUrl': photoURL
+    'photoUrl': photoURL,
+    'metaData': metadata
   };
 
   set userSet(User user){
     uid = user.uid;
     name = user.email!.split('.')[0].toString();
     photoURL = user.photoURL ?? '';
+    metadata = user.metadata;
     // notifyListeners();
     debugPrint('here is username $name');
   }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -22,8 +23,8 @@ class _HomescrenState extends State<Homescren> {
             ChangeNotifierProvider<FilterState>(create: (_) => FilterState()),
             Consumer<FilterState>(
                 builder: (context, filter, child) =>
-                    StreamProvider<List<Note>>.value(
-                        value: _createNoteStream(),
+                    StreamProvider<List<Note?>>.value(
+                        value: _createNoteStream(context, filter),
                         initialData: [],
                         child: child))
           ],
@@ -41,7 +42,7 @@ class _HomescrenState extends State<Homescren> {
                       if(hasNotes) const SliverToBoxAdapter(
                         child: SizedBox(height: 24,),
                       ),
-                      ...buildNoteView(filter),
+                      ...buildNoteView(filter,context,notes),
                       if (hasNotes) SliverToBoxAdapter(
                       child: SizedBox(height: (canCreate ? 56 : 10.0) + 10.0),
                     )
@@ -155,10 +156,12 @@ class _HomescrenState extends State<Homescren> {
       ),
     ),
   );
-  List<Widget> buildNoteView(FilterState filterState) => [
-    
-    buildBlankView(filterState.noteState)
-    ];
+  List<Widget> buildNoteView(FilterState filterState, BuildContext context, List<Note?> notes){
+    if(notes.isEmpty){
+      return [buildBlankView(filterState.noteState)];
+    }
+    return [buildBlankView(filterState.noteState)];
+  }
   
   Widget buildBlankView(NoteState state) => SliverFillRemaining(
     hasScrollBody: false,
@@ -179,20 +182,54 @@ class _HomescrenState extends State<Homescren> {
               color: Color(0xFF61656A),
               fontSize: 14
             ),
-            ),
-            )
+          ),
+        )
       ],
     ),
   );
 
 
-  Stream<List<Note>> _createNoteStream() {
-    return Stream<List<Note>>.empty();
+  Stream<List<Note?>> _createNoteStream(BuildContext context, FilterState filter) {
+    // return Stream<List<Note>>.empty();
+    final user = Provider.of<UserData>(context).userD;
+    final userUID = user['uid'] as String;
+    final sinceSignUp = DateTime.now().millisecondsSinceEpoch-
+      (user['metaData'].creationTime?.millisecondsSinceEpoch ?? 0);
+    final useIndexes = sinceSignUp >= _10_mins_orderTime;
+    final collection = userCollection(userUID);
 
-  }
+    final fireQuery = filter.noteState == NoteState.others
+      ? collection
+        .where('noteState', isLessThan: NoteState.archieved.index)
+        .orderBy('noteState', descending: true)
+      : collection.where('noteState', isEqualTo: filter.noteState.index);
 
-  Map<String, List<Note>> notesPartition(List<Note> note){
-    return {};
+    return (useIndexes ? fireQuery.orderBy('createdAt',descending: true): fireQuery)
+              .snapshots()
+              .handleError((e) => debugPrint('Error in obtaining query $e'))
+              .map((snapShot) => Note.fromQuery(snapShot));
+  }           
+
+  Map<String, List<Note>> notesPartition(List<Note> notes){
+    if(notes.isEmpty){
+      return {
+        'PinnedPartition':[],
+        'OtherPartition': []
+      };
+    }
+    
+   
+    final indexUnpinned = notes.indexWhere((note) => note.pinned);
+    
+    return indexUnpinned > -1
+      ? {
+        'PinnedPartition':notes.sublist(0,indexUnpinned),
+        'OtherPartition': notes.sublist(indexUnpinned)
+      }
+      : {
+        'PinnedPartition': notes,
+        'OtherPartition': []
+      };
   }
 
 }
