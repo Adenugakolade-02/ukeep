@@ -37,7 +37,14 @@ class _HomescrenState extends State<Homescren> {
                   constraints: const BoxConstraints.tightFor(width: 720),
                   child: CustomScrollView(
                     slivers: <Widget>[
-                      appBar(context, filter)
+                      appBar(context, filter),
+                      if(hasNotes) const SliverToBoxAdapter(
+                        child: SizedBox(height: 24,),
+                      ),
+                      ...buildNoteView(filter),
+                      if (hasNotes) SliverToBoxAdapter(
+                      child: SizedBox(height: (canCreate ? 56 : 10.0) + 10.0),
+                    )
                     ],
                   ),
                 ),
@@ -143,16 +150,50 @@ class _HomescrenState extends State<Homescren> {
           Icon(Icons.mic, size: 26, color: Color(0xFF5F6368)),
           SizedBox(width: 30),
           Icon(Icons.insert_photo, size: 26, color: Color(0xFF5F6368)),
+          SizedBox(width: 30)
         ],
       ),
     ),
   );
-  List<Widget> buildNoteView() => [Container()];
-  Widget buildBlankView() => Container();
+  List<Widget> buildNoteView(FilterState filterState) => [
+    
+    buildBlankView(filterState.noteState)
+    ];
+  
+  Widget buildBlankView(NoteState state) => SliverFillRemaining(
+    hasScrollBody: false,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      mainAxisSize: MainAxisSize.min,
+      children:  <Widget>[
+        const Expanded(child: SizedBox()),
+        const Icon(
+          Icons.push_pin,
+          size: 120,
+          color: Color(0xFF7E39FB),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(state.emptyResultMessage,
+            style: const TextStyle(
+              color: Color(0xFF61656A),
+              fontSize: 14
+            ),
+            ),
+            )
+      ],
+    ),
+  );
 
 
   Stream<List<Note>> _createNoteStream() {
     return Stream<List<Note>>.empty();
+
+  }
+
+  Map<String, List<Note>> notesPartition(List<Note> note){
+    return {};
   }
 
 }
+const _10_mins_orderTime = 60000;

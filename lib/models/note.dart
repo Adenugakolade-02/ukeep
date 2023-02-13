@@ -40,6 +40,16 @@ extension NoteStateX on NoteState{
         return '';
     }
   }
+  String get emptyResultMessage {
+    switch (this) {
+      case NoteState.archieved:
+        return 'Archived notes appear here';
+      case NoteState.deleted:
+        return 'Notes in trash appear here';
+      default:
+        return 'Notes you add appear here';
+    }
+  }
 }
 
 
