@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:ukeep/models.dart';
+import 'package:ukeep/widgets.dart';
 
 class Homescren extends StatefulWidget {
   const Homescren({super.key});
@@ -13,6 +14,7 @@ class Homescren extends StatefulWidget {
 
 class _HomescrenState extends State<Homescren> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  bool _showGrid = true;
   @override
   Widget build(BuildContext context) => AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.dark.copyWith(
@@ -160,7 +162,36 @@ class _HomescrenState extends State<Homescren> {
     if(notes.isEmpty){
       return [buildBlankView(filterState.noteState)];
     }
-    return [buildBlankView(filterState.noteState)];
+    // return [buildBlankView(filterState.noteState)];
+    final asGrid = filterState.noteState ==NoteState.deleted || _showGrid;
+    final mode = asGrid? NoteGrid.create : NoteList.create;
+
+    final showPinned = filterState.noteState == NoteState.others;
+
+    if(!showPinned){
+      return [mode(notes: notes)];
+    }
+    final partition = notesPartition(notes);
+    final hasPinned = partition['PinnedPartition']!.isNotEmpty;
+    final hasUnPinned = partition['OtherPartition']!.isNotEmpty;
+
+    Widget labelBuilder(String label, [double top =26]) => SliverToBoxAdapter(
+      child: Container(
+        padding: EdgeInsetsDirectional.only(start: 26,bottom: 25,top: top),
+        child: Text(label, style: const TextStyle(
+          color: Color(0xFF61656A),
+          fontWeight: FontWeight.w500,
+          fontSize: 12
+          ),
+        ),
+      ),
+    );
+    return [
+      if(hasPinned) labelBuilder('PINNED', 0),
+      if(hasPinned) mode(notes: partition['PinnedPartition']!),
+      if(hasPinned && hasUnPinned) labelBuilder('OTHERS'),
+      mode(notes: partition['OtherPartition']!)
+    ];
   }
   
   Widget buildBlankView(NoteState state) => SliverFillRemaining(
@@ -210,7 +241,7 @@ class _HomescrenState extends State<Homescren> {
               .map((snapShot) => Note.fromQuery(snapShot));
   }           
 
-  Map<String, List<Note>> notesPartition(List<Note> notes){
+  Map<String, List<Note?>> notesPartition(List<Note?> notes){
     if(notes.isEmpty){
       return {
         'PinnedPartition':[],
@@ -219,7 +250,7 @@ class _HomescrenState extends State<Homescren> {
     }
     
    
-    final indexUnpinned = notes.indexWhere((note) => note.pinned);
+    final indexUnpinned = notes.indexWhere((note) => note!.pinned);
     
     return indexUnpinned > -1
       ? {

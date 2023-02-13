@@ -42,6 +42,7 @@ dependencies:
   provider: ^6.0.5
   # firebase_ui_auth: ^1.1.9
   flutterfire_ui: ^0.4.3+20
+  collection_ext: ^1.0.0
 
 dev_dependencies:
   flutter_test:
