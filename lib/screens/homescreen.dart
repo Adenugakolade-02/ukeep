@@ -23,14 +23,28 @@ class _HomescrenState extends State<Homescren> {
         child: MultiProvider(
           providers: [
             ChangeNotifierProvider<FilterState>(create: (_) => FilterState()),
+            Provider<List<Note?>>(create: (_) => Note.fromQuery()),
+            // ProxyProvider<FilterState, StreamProvider<List<Note?>>>(
+            //   update: (context, filter, notes) =>  
+            //     StreamProvider<List<Note?>>.value(
+            //             value: _createNoteStream(filter),
+            //             initialData: [],
+            //             child: child)
+            //   child: child,
+            //           ),
+              
             Consumer<FilterState>(
                 builder: (context, filter, child) =>
-                    StreamProvider<List<Note?>>.value(
-                        value: _createNoteStream(context, filter),
+                    StreamProvider.value(
+                        value: _createNoteStream(filter),
                         initialData: [],
-                        child: child))
-          ],
-          child: Consumer2<FilterState, List<Note>>(builder: (context, filter, notes, child){
+                        child: child)),
+            
+          ], 
+          // StreamProvider<List<Note?>>.value(
+          //   value: _createNoteStream(filter) 
+          //   initialData: [])
+          child: Consumer2<FilterState, List<Note?>>(builder: (context, filter, notes, child){
             final hasNotes = notes.isEmpty != true;
             final canCreate = filter.noteState.canCreate;
             return Scaffold(
@@ -220,7 +234,7 @@ class _HomescrenState extends State<Homescren> {
   );
 
 
-  Stream<List<Note?>> _createNoteStream(BuildContext context, FilterState filter) {
+  Stream<List<Note?>> _createNoteStream(FilterState filter) {
     // return Stream<List<Note>>.empty();
     final user = Provider.of<UserData>(context).userD;
     final userUID = user['uid'] as String;
@@ -238,7 +252,7 @@ class _HomescrenState extends State<Homescren> {
     return (useIndexes ? fireQuery.orderBy('createdAt',descending: true): fireQuery)
               .snapshots()
               .handleError((e) => debugPrint('Error in obtaining query $e'))
-              .map((snapShot) => Note.fromQuery(snapShot));
+              .map((snapShot) => Note.fromQuery(query:snapShot));
   }           
 
   Map<String, List<Note?>> notesPartition(List<Note?> notes){

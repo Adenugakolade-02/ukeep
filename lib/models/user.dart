@@ -28,8 +28,7 @@ class UserData extends ChangeNotifier{
     name = user.email!.split('.')[0].toString();
     photoURL = user.photoURL ?? '';
     metadata = user.metadata;
-    // notifyListeners();
-    debugPrint('here is username $name');
+    // debugPrint('here is username $name');
   }
 
     UserData([this.uid='', this.name='', this.photoURL='']);

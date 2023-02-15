@@ -74,8 +74,8 @@ extension FromFireStore on QueryDocumentSnapshot{
       title: data.get('title'),
       text: data.get('text'), 
       color: Color(data.get('color')) , 
-      createdAt:data.get('createdAt'),
-      modifiedAt:data.get('modifiedAt'),
+      createdAt: DateTime.fromMillisecondsSinceEpoch(data.get('createdAt')),
+      modifiedAt: DateTime.fromMillisecondsSinceEpoch(data.get('modifiedAt')),
       noteState: NoteState.values[data.get('noteState')]
       );
   } 

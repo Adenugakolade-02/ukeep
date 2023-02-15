@@ -22,7 +22,7 @@ class AuthScreens extends StatelessWidget {
           debugPrint("email ${snapshot.data?.email}");
           debugPrint("userid ${snapshot.data?.uid}");
           debugPrint('${snapshot.data?.photoURL}');
-          Provider.of<UserData>(context).userSet = snapshot.data as User;
+          Provider.of<UserData>(context, listen: false).userSet = snapshot.data as User;
           return const Homescren();
         } else {
           return SignInScreen(
