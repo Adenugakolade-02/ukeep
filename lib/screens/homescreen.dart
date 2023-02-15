@@ -51,6 +51,7 @@ class _HomescrenState extends State<Homescren> {
                       ),
                     ),
                   ),
+                  drawer: const AppDrawer(),
                   floatingActionButton: canCreate ? actionButton(): null,
                   bottomNavigationBar: bottomActions(),
                   floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
@@ -74,11 +75,20 @@ class _HomescrenState extends State<Homescren> {
       elevation: 0,
     )
     : SliverAppBar(
+      backgroundColor: Colors.transparent,
       floating: true,
       snap: true,
-      title: Text(filter.noteState.name),
+      title: Text(
+        filter.noteState.filterName,
+        style: const TextStyle(
+          color: Color(0xFF61656A),
+          fontWeight: FontWeight.w300,
+          letterSpacing: 1.3
+        ),
+        ),
       leading: IconButton(
-        icon: Icon(Icons.menu),
+        color: const Color(0xFF61656A),
+        icon: const Icon(Icons.menu),
         onPressed: () => _scaffoldKey.currentState?.openDrawer(),
       ),
     );
@@ -110,8 +120,15 @@ class _HomescrenState extends State<Homescren> {
               ),
               const SizedBox(width: 16),
               InkWell(
-                child: Icon(Icons.list),
-                onTap: (){},
+                child: Icon(
+                  _showGrid? Icons.view_list: Icons.grid_view,
+                  color: Colors.black,
+                  ),
+                onTap: (){
+                  setState(() {
+                    _showGrid = !_showGrid;
+                  });
+                },
               ),
               const SizedBox(width: 18,),
               buildAvatar(context),

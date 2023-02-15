@@ -31,7 +31,7 @@ extension NoteStateX on NoteState{
   String get filterName{
     switch (this){
       case NoteState.archieved:
-        return 'Archeive';
+        return 'Archieved';
       case NoteState.deleted:
         return 'Bin';
       default:
