@@ -23,7 +23,7 @@ class _HomescrenState extends State<Homescren> {
         child: MultiProvider(
           providers: [
             ChangeNotifierProvider<FilterState>(create: (_) => FilterState()),
-            Provider<List<Note?>>(create: (_) => Note.fromQuery()),
+            // Provider<List<Note?>>(create: (_) => Note.fromQuery()),
             // ProxyProvider<FilterState, StreamProvider<List<Note?>>>(
             //   update: (context, filter, notes) =>  
             //     StreamProvider<List<Note?>>.value(
@@ -33,43 +33,50 @@ class _HomescrenState extends State<Homescren> {
             //   child: child,
             //           ),
               
-            Consumer<FilterState>(
-                builder: (context, filter, child) =>
-                    StreamProvider.value(
-                        value: _createNoteStream(filter),
-                        initialData: [],
-                        child: child)),
+            // Consumer<FilterState>(
+            //     builder: (context, filter, child) =>
+            //         StreamProvider<List<Note?>>.value(
+            //             value: _createNoteStream(filter),
+            //             initialData: [],
+            //             child: child)),
             
           ], 
           // StreamProvider<List<Note?>>.value(
           //   value: _createNoteStream(filter) 
           //   initialData: [])
-          child: Consumer2<FilterState, List<Note?>>(builder: (context, filter, notes, child){
-            final hasNotes = notes.isEmpty != true;
+          child: Consumer<FilterState>(builder: (context, filter, child){
+            // final hasNotes = notes.isEmpty != true;
             final canCreate = filter.noteState.canCreate;
-            return Scaffold(
-              key: _scaffoldKey,
-              body: Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints.tightFor(width: 720),
-                  child: CustomScrollView(
-                    slivers: <Widget>[
-                      appBar(context, filter),
-                      if(hasNotes) const SliverToBoxAdapter(
-                        child: SizedBox(height: 24,),
+            return StreamBuilder<List<Note?>>(
+              stream:  _createNoteStream(filter),
+              initialData: [],
+              builder: (context, snapshot) {
+                debugPrint('${snapshot.data!}');
+                return Scaffold(
+                  key: _scaffoldKey,
+                  body: Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints.tightFor(width: 720),
+                      child: CustomScrollView(
+                        slivers: <Widget>[
+                          appBar(context, filter),
+                          if(snapshot.hasData) const SliverToBoxAdapter(
+                            child: SizedBox(height: 24,),
+                          ),
+                          ...buildNoteView(filter,context,snapshot.data!),
+                          if (snapshot.hasData) SliverToBoxAdapter(
+                          child: SizedBox(height: (canCreate ? 56 : 10.0) + 10.0),
+                        )
+                        ],
                       ),
-                      ...buildNoteView(filter,context,notes),
-                      if (hasNotes) SliverToBoxAdapter(
-                      child: SizedBox(height: (canCreate ? 56 : 10.0) + 10.0),
-                    )
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              floatingActionButton: canCreate ? actionButton(): null,
-              bottomNavigationBar: bottomActions(),
-              floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-              extendBody: true,
+                  floatingActionButton: canCreate ? actionButton(): null,
+                  bottomNavigationBar: bottomActions(),
+                  floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+                  extendBody: true,
+                );
+              }
             );
           }),
         ),
@@ -236,18 +243,21 @@ class _HomescrenState extends State<Homescren> {
 
   Stream<List<Note?>> _createNoteStream(FilterState filter) {
     // return Stream<List<Note>>.empty();
+    debugPrint('streamining is about to start');
     final user = Provider.of<UserData>(context).userD;
     final userUID = user['uid'] as String;
     final sinceSignUp = DateTime.now().millisecondsSinceEpoch-
       (user['metaData'].creationTime?.millisecondsSinceEpoch ?? 0);
     final useIndexes = sinceSignUp >= _10_mins_orderTime;
     final collection = userCollection(userUID);
+    // debugPrint('${collection.get()}');
 
     final fireQuery = filter.noteState == NoteState.others
       ? collection
         .where('noteState', isLessThan: NoteState.archieved.index)
         .orderBy('noteState', descending: true)
       : collection.where('noteState', isEqualTo: filter.noteState.index);
+      debugPrint('Finished query');
 
     return (useIndexes ? fireQuery.orderBy('createdAt',descending: true): fireQuery)
               .snapshots()
@@ -256,6 +266,7 @@ class _HomescrenState extends State<Homescren> {
   }           
 
   Map<String, List<Note?>> notesPartition(List<Note?> notes){
+    debugPrint('here is notes ${notes}');
     if(notes.isEmpty){
       return {
         'PinnedPartition':[],

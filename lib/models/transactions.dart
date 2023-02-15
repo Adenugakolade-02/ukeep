@@ -69,6 +69,7 @@ extension FromFireStore on QueryDocumentSnapshot{
   Note toNote(){
     // if (!exists) return null;
     final data = this.data() as QueryDocumentSnapshot<Object?>;
+    // print('here is the document title ${id}');
     return Note(
       id: id,
       title: data.get('title'),
