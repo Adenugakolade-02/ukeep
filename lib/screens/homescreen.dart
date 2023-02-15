@@ -23,35 +23,12 @@ class _HomescrenState extends State<Homescren> {
         child: MultiProvider(
           providers: [
             ChangeNotifierProvider<FilterState>(create: (_) => FilterState()),
-            // Provider<List<Note?>>(create: (_) => Note.fromQuery()),
-            // ProxyProvider<FilterState, StreamProvider<List<Note?>>>(
-            //   update: (context, filter, notes) =>  
-            //     StreamProvider<List<Note?>>.value(
-            //             value: _createNoteStream(filter),
-            //             initialData: [],
-            //             child: child)
-            //   child: child,
-            //           ),
-              
-            // Consumer<FilterState>(
-            //     builder: (context, filter, child) =>
-            //         StreamProvider<List<Note?>>.value(
-            //             value: _createNoteStream(filter),
-            //             initialData: [],
-            //             child: child)),
-            
           ], 
-          // StreamProvider<List<Note?>>.value(
-          //   value: _createNoteStream(filter) 
-          //   initialData: [])
           child: Consumer<FilterState>(builder: (context, filter, child){
-            // final hasNotes = notes.isEmpty != true;
             final canCreate = filter.noteState.canCreate;
             return StreamBuilder<List<Note?>>(
               stream:  _createNoteStream(filter),
-              initialData: [],
               builder: (context, snapshot) {
-                debugPrint('${snapshot.data!}');
                 return Scaffold(
                   key: _scaffoldKey,
                   body: Center(
@@ -63,6 +40,9 @@ class _HomescrenState extends State<Homescren> {
                           if(snapshot.hasData) const SliverToBoxAdapter(
                             child: SizedBox(height: 24,),
                           ),
+                          if(snapshot.connectionState == ConnectionState.waiting)
+                            const SliverToBoxAdapter(child: Center(child: CircularProgressIndicator(backgroundColor: Color(0xFF7E39FB),))),
+                          if(snapshot.connectionState == ConnectionState.active)                            
                           ...buildNoteView(filter,context,snapshot.data!),
                           if (snapshot.hasData) SliverToBoxAdapter(
                           child: SizedBox(height: (canCreate ? 56 : 10.0) + 10.0),
@@ -152,8 +132,8 @@ class _HomescrenState extends State<Homescren> {
   }
 
   Widget actionButton() {
-    return FloatingActionButton(
-      onPressed: (){},
+    return const FloatingActionButton(
+      onPressed: null,
       backgroundColor: Color(0xFF7E39FB),
       child: Icon(Icons.add),
       );
@@ -183,7 +163,6 @@ class _HomescrenState extends State<Homescren> {
     if(notes.isEmpty){
       return [buildBlankView(filterState.noteState)];
     }
-    // return [buildBlankView(filterState.noteState)];
     final asGrid = filterState.noteState ==NoteState.deleted || _showGrid;
     final mode = asGrid? NoteGrid.create : NoteList.create;
 
@@ -242,7 +221,6 @@ class _HomescrenState extends State<Homescren> {
 
 
   Stream<List<Note?>> _createNoteStream(FilterState filter) {
-    // return Stream<List<Note>>.empty();
     debugPrint('streamining is about to start');
     final user = Provider.of<UserData>(context).userD;
     final userUID = user['uid'] as String;
@@ -250,8 +228,6 @@ class _HomescrenState extends State<Homescren> {
       (user['metaData'].creationTime?.millisecondsSinceEpoch ?? 0);
     final useIndexes = sinceSignUp >= _10_mins_orderTime;
     final collection = userCollection(userUID);
-    // debugPrint('${collection.get()}');
-
     final fireQuery = filter.noteState == NoteState.others
       ? collection
         .where('noteState', isLessThan: NoteState.archieved.index)
@@ -266,7 +242,6 @@ class _HomescrenState extends State<Homescren> {
   }           
 
   Map<String, List<Note?>> notesPartition(List<Note?> notes){
-    debugPrint('here is notes ${notes}');
     if(notes.isEmpty){
       return {
         'PinnedPartition':[],

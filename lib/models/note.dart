@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/painting.dart';
-import 'package:flutter/foundation.dart';
 import 'package:ukeep/models/transactions.dart';
 
 
@@ -115,7 +113,7 @@ class Note extends ChangeNotifier{
   other.modifiedAt == modifiedAt;
   
   @override
-  int get hashCode => id.hashCode ?? super.hashCode;
+  int get hashCode => id.hashCode;
   
   
 }

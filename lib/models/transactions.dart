@@ -67,17 +67,15 @@ extension FireTransaction on Note{
 
 extension FromFireStore on QueryDocumentSnapshot{
   Note toNote(){
-    // if (!exists) return null;
-    final data = this.data() as QueryDocumentSnapshot<Object?>;
-    // print('here is the document title ${id}');
+    final Map<String, dynamic>  data = this.data() as Map<String, dynamic>;
     return Note(
       id: id,
-      title: data.get('title'),
-      text: data.get('text'), 
-      color: Color(data.get('color')) , 
-      createdAt: DateTime.fromMillisecondsSinceEpoch(data.get('createdAt')),
-      modifiedAt: DateTime.fromMillisecondsSinceEpoch(data.get('modifiedAt')),
-      noteState: NoteState.values[data.get('noteState')]
+      title: data['title'],
+      text: data['text'], 
+      color: Color(data['color']) , 
+      createdAt: DateTime.fromMillisecondsSinceEpoch(data['createdAt']),
+      modifiedAt: DateTime.fromMillisecondsSinceEpoch(data['modifiedAt']),
+      noteState: NoteState.values[data['noteState']]
       );
   } 
 }
