@@ -5,18 +5,22 @@ import 'package:ukeep/widgets/note_item.dart';
 class NoteGrid extends StatelessWidget {
   const NoteGrid({
     Key? key,
-    required this.notes,
+    required this.notes, required this.onTap,
     }):super(key: key);
 
   final List<Note?> notes;
+  final void Function(Note) onTap;
 
   static NoteGrid create ({
     Key? key,
-    required List<Note?> notes
+    required List<Note?> notes,
+    required void Function(Note) onTap
   }) => NoteGrid(
     key: key,
-    notes: notes
+    notes: notes,
+    onTap: onTap,
     );
+  
 
   
 
@@ -38,7 +42,7 @@ class NoteGrid extends StatelessWidget {
   );
 
   Widget _noteItem(Note note) => InkWell(
-    onTap: (){},
+    onTap: ()=> onTap.call(note),
     child: NoteItem(note: note),
   );
 }

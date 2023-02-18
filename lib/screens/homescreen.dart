@@ -52,7 +52,7 @@ class _HomescrenState extends State<Homescren> {
                     ),
                   ),
                   drawer: const AppDrawer(),
-                  floatingActionButton: canCreate ? actionButton(): null,
+                  floatingActionButton: canCreate ? actionButton(context): null,
                   bottomNavigationBar: bottomActions(),
                   floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
                   extendBody: true,
@@ -148,11 +148,11 @@ class _HomescrenState extends State<Homescren> {
     );
   }
 
-  Widget actionButton() {
-    return const FloatingActionButton(
-      onPressed: null,
-      backgroundColor: Color(0xFF7E39FB),
-      child: Icon(Icons.add),
+  Widget actionButton(BuildContext context) {
+    return FloatingActionButton(
+      onPressed: () => Navigator.pushNamed(context, '/editor'),
+      backgroundColor: const Color(0xFF7E39FB),
+      child: const Icon(Icons.add),
       );
   }
 
@@ -186,7 +186,7 @@ class _HomescrenState extends State<Homescren> {
     final showPinned = filterState.noteState == NoteState.others;
 
     if(!showPinned){
-      return [mode(notes: notes)];
+      return [mode(notes: notes, onTap: onTap)];
     }
     final partition = notesPartition(notes);
     final hasPinned = partition['PinnedPartition']!.isNotEmpty;
@@ -205,9 +205,9 @@ class _HomescrenState extends State<Homescren> {
     );
     return [
       if(hasPinned) labelBuilder('PINNED', 0),
-      if(hasPinned) mode(notes: partition['PinnedPartition']!),
+      if(hasPinned) mode(notes: partition['PinnedPartition']!, onTap: onTap),
       if(hasPinned && hasUnPinned) labelBuilder('OTHERS'),
-      mode(notes: partition['OtherPartition']!)
+      mode(notes: partition['OtherPartition']!, onTap: onTap)
     ];
   }
   
@@ -278,6 +278,10 @@ class _HomescrenState extends State<Homescren> {
         'PinnedPartition': notes,
         'OtherPartition': []
       };
+  }
+
+  void onTap(Note note){
+    Navigator.pushNamed(context, '/editor', arguments: {'note':note});
   }
 
 }

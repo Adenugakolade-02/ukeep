@@ -1,12 +1,11 @@
-import 'dart:developer';
-
 import 'package:firebase_core/firebase_core.dart';
 // import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ukeep/auth.dart';
 import 'package:ukeep/models/user.dart';
-import '../firebase_options.dart';
+import 'package:ukeep/route_generator.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +27,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: AuthScreens(),
+      onGenerateRoute: RouteGenerator.generateRoute,
     ),
       );
   }
