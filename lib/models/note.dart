@@ -52,13 +52,13 @@ extension NoteStateX on NoteState{
 
 
 class Note extends ChangeNotifier{
-  final String? id;
-  final String title;
-  final String text;
-  final Color color;
-  final DateTime createdAt;
-  final DateTime modifiedAt;
-  final NoteState noteState;
+  String? id;
+  String title;
+  late  String text;
+  Color color;
+  DateTime createdAt;
+  DateTime modifiedAt;
+  NoteState noteState;
 
   Note({required this.title,  
         required this.text, 
@@ -92,7 +92,7 @@ class Note extends ChangeNotifier{
     Color? color,
     NoteState? state
   }){
-    notifyListeners();
+    // notifyListeners();
     return Note(
       title: title ?? this.title,  
       text: text ?? this.text, 

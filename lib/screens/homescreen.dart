@@ -5,14 +5,14 @@ import 'package:provider/provider.dart';
 import 'package:ukeep/imports/models.dart';
 import 'package:ukeep/imports/widgets.dart';
 
-class Homescren extends StatefulWidget {
+class Homescren extends StatefulWidget{
   const Homescren({super.key});
 
   @override
   State<Homescren> createState() => _HomescrenState();
 }
 
-class _HomescrenState extends State<Homescren> {
+class _HomescrenState extends State<Homescren> with NoteCommandHandler{
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool _showGrid = true;
   @override
@@ -280,8 +280,9 @@ class _HomescrenState extends State<Homescren> {
       };
   }
 
-  void onTap(Note note){
-    Navigator.pushNamed(context, '/editor', arguments: {'note':note});
+  void onTap(Note note) async{
+    final command = await Navigator.pushNamed(context, '/editor', arguments: {'note':note});
+    processCommand(_scaffoldKey.currentState!, command as NoteCommand);
   }
 
 }

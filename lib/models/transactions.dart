@@ -18,13 +18,16 @@ class NoteCommand implements INotecommand{
   final String uid;
   final NoteState from;
   final NoteState to;
+  bool dismiss;
   
   NoteCommand(
     this.id,
     this.uid,
     this.from,
-    this.to
+    this.to,
+    [this.dismiss = false] 
   );
+  
   @override
   Future<void> execute() => updateNoteState(to, id, uid);
 
