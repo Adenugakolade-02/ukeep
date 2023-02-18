@@ -72,6 +72,7 @@ class Note extends ChangeNotifier{
               modifiedAt = modifiedAt ?? DateTime.now(),
               color = color ?? Colors.white;
 
+
   static List<Note?> fromQuery({QuerySnapshot? query}) => query!=null? query.toNotes() : [];
 
   bool get pinned => noteState == NoteState.pinned;

@@ -1,48 +1,82 @@
 import 'dart:ui';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 import 'package:ukeep/models/note.dart';
 
-// class FireTransactions extends ChangeNotifier{
-//   final String uid;
-  
-//   FireTransactions(this.uid){
-//     userCollection = FirebaseFirestore.instance;
-//     reference = userCollection.collection('note-$uid');
-//   }
-  
-//   late FirebaseFirestore userCollection;
-//   late CollectionReference reference;
-  
-//   // Remeber to show snackbar after document has been stored or updated
-//   void storeNewData(Note note){
-//     reference.add(note.toJson());
-//     notifyListeners();
-//   }
+@immutable
+abstract class INotecommand{
+  Future<void> execute();
+  String getTitle() => '';
+  Future<void> undo();
+}
 
-//   void updateData(Map<String, dynamic> newData,String id){
-//     final docRef = reference.doc(id);
-//     userCollection.runTransaction((transaction) async{
-//       // final snapShot = await transaction.get(docRef);
-//       transaction.update(docRef, newData);
-//     });
-//     notifyListeners();
-//   }
 
- 
-//   void updateState(String id, NoteState state){
-//     final docRef = reference.doc(id);
-//     userCollection.runTransaction((transaction) async{
-//       final snapShot = await transaction.get(docRef);
-//       transaction.update(docRef, 
-//       {'noteState': NoteState.values[snapShot.get('noteState')],
-//         'modifiedAt': DateTime.now().toString()
-//       });
-//     });
-//     notifyListeners();
-//   }
+class NoteCommand implements INotecommand{
+    
+  final String id;
+  final String uid;
+  final NoteState from;
+  final NoteState to;
+  
+  NoteCommand(
+    this.id,
+    this.uid,
+    this.from,
+    this.to
+  );
+  @override
+  Future<void> execute() => updateNoteState(to, id, uid);
 
-// }
+  @override
+  String getTitle() {
+    switch(to){
+
+      case NoteState.deleted:
+        return "Note has been moved to Bin";
+      case NoteState.pinned:
+        return "Note pinned";
+      case NoteState.archieved:
+        return "Note Archieved";
+      default:
+        switch (from){
+
+          case NoteState.deleted:
+            return "Note has been moved from trash";
+          case NoteState.archieved:
+            return "Note has benn unarchieved";
+          case NoteState.pinned:
+            return "Note has been unpinned";
+          default:
+            return '';
+        }
+    }
+  }
+
+  @override
+  Future<void> undo() => updateNoteState(from, id, uid);
+}
+
+// using scaffold messenger to revert changes,
+mixin NoteCommandHandler<T extends StatefulWidget> on State<T>{
+  
+  Future<void> processCommand(ScaffoldState scaffoldState, NoteCommand noteCommand) async{
+    await noteCommand.execute();
+    final commandMessage = noteCommand.getTitle();
+    if(mounted && commandMessage.isNotEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(commandMessage),
+          action: SnackBarAction(
+            label: 'Undo', 
+            onPressed: ()async{
+              return await noteCommand.undo();
+              }),
+          )
+      );
+    }
+  }
+}
 
 extension NoteQuery on QuerySnapshot {
   /// Transforms the query result into a list of notes.
@@ -86,3 +120,10 @@ CollectionReference userCollection (String uid) => FirebaseFirestore.instance.co
 FirebaseFirestore  fireInstance()=> FirebaseFirestore.instance;
 DocumentReference noteDocument(String uid, String id) => userCollection(uid).doc(id);
 
+Future<void> updateNoteState(NoteState state, String id, String uid){
+  return updateNote({'noteState':state.index}, id, uid);
+}
+
+Future<void> updateNote(Map<String, dynamic> data, String id, String uid){
+  return noteDocument(uid, id).update(data);
+}
