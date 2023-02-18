@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:ukeep/models.dart';
+import 'package:ukeep/imports/models.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});

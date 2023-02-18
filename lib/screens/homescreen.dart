@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:ukeep/models.dart';
-import 'package:ukeep/widgets.dart';
+import 'package:ukeep/imports/models.dart';
+import 'package:ukeep/imports/widgets.dart';
 
 class Homescren extends StatefulWidget {
   const Homescren({super.key});

@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:ukeep/models.dart';
+import 'package:ukeep/imports/models.dart';
 
 @immutable
 abstract class INotecommand{
