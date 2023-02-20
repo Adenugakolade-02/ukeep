@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -101,7 +100,7 @@ class _HomescrenState extends State<Homescren> with NoteCommandHandler{
       child: Card(
         elevation: 2,
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 5),
+          padding: const EdgeInsets.symmetric(vertical: 5),
           child: Row(
             children: <Widget>[
               const SizedBox(width: 20,),
@@ -238,7 +237,6 @@ class _HomescrenState extends State<Homescren> with NoteCommandHandler{
 
 
   Stream<List<Note?>> _createNoteStream(FilterState filter) {
-    debugPrint('streamining is about to start');
     final user = Provider.of<UserData>(context).userD;
     final userUID = user['uid'] as String;
     final sinceSignUp = DateTime.now().millisecondsSinceEpoch-
@@ -250,7 +248,7 @@ class _HomescrenState extends State<Homescren> with NoteCommandHandler{
         .where('noteState', isLessThan: NoteState.archieved.index)
         .orderBy('noteState', descending: true)
       : collection.where('noteState', isEqualTo: filter.noteState.index);
-      debugPrint('Finished query');
+      
 
     return (useIndexes ? fireQuery.orderBy('createdAt',descending: true): fireQuery)
               .snapshots()

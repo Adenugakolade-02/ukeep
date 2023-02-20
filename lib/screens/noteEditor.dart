@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -86,8 +84,8 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
                 appBar: AppBar(
                   actions: buildTopActions(uid),
                   bottom: const PreferredSize(
-                    child: SizedBox(), 
-                    preferredSize: Size(0,24)),
+                    preferredSize: Size(0,24),
+                    child: SizedBox()),
                   backgroundColor: _noteColor,
 
                 ),
@@ -129,7 +127,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
           controller: _titleEditingController,
           style: _formStyle,
           decoration: const InputDecoration(
-            hintText: 'title',
+            hintText: 'Title',
             border: InputBorder.none,
           ),
           maxLines: null,
@@ -205,7 +203,6 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
               onPressed: _note.noteState.canEdit 
               ? () async{
                 if(_isDirty){
-                  debugPrint('Note title ${_note.title}');
                   _note.modifiedAt = DateTime.now();
                   await _note.noteToFirestore(uid);
                   _originNote = _note;

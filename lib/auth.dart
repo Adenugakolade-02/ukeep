@@ -1,15 +1,10 @@
-import 'dart:async';
-
-// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:firebase_core/firebase_core.dart';
-// import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutterfire_ui/auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ukeep/imports/models.dart';
 import 'package:ukeep/screens/homescreen.dart';
-// import 'firebase_options.dart';
+
 
 class AuthScreens extends StatelessWidget {
   const AuthScreens({super.key});
@@ -27,11 +22,18 @@ class AuthScreens extends StatelessWidget {
         } else {
           return SignInScreen(
             headerBuilder: (context, constraints, shrinkOffset) {
-              return Padding(
+              return Container(
                 padding: const EdgeInsets.all(20),
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Image.asset('assets/images/google-keep.png'),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // AspectRatio(
+                    //   aspectRatio: 1,
+                    //   child: Image.asset('assets/images/google-keep.png'),
+                    // ),
+                    // const SizedBox(width: 10,),
+                    drawHeader()
+                  ],
                 ),
               );
             },
@@ -44,6 +46,33 @@ class AuthScreens extends StatelessWidget {
           );
         }
       });
+
+  Widget drawHeader(){
+    return Padding(
+      padding: const EdgeInsets.only(top:20, left: 30, right:30),
+      child: RichText(
+        text: const TextSpan(
+          style: TextStyle(
+            color: Color(0xFF61656A),
+            fontSize: 50,
+            fontWeight: FontWeight.w300,
+            letterSpacing: 2
+          ),
+          children: <TextSpan>[
+            TextSpan(
+              text: 'U',
+              style: TextStyle(
+                color: Color(0xFF7E39FB),
+                fontWeight: FontWeight.w500,
+                // fontStyle: FontStyle.italic
+              )
+            ),
+            TextSpan(text: 'Keep')
+          ]
+        ),
+      ),
+    );
+  }
 }
 
 // class HomeScreen extends StatelessWidget {

@@ -23,8 +23,8 @@ class NoteActions extends StatelessWidget {
       children: <Widget>[
         if(id!=null && state < NoteState.archieved)
           ListTile(
-            leading: Icon(Icons.archive_outlined),
-            title: Text('Archive', style: textStyle,),
+            leading: const Icon(Icons.archive_outlined),
+            title: const Text('Archive', style: textStyle,),
             onTap: () => Navigator.pop(context, NoteCommand(
               id, 
               uid, 
@@ -35,8 +35,8 @@ class NoteActions extends StatelessWidget {
           ),
         if(state == NoteState.archieved)
           ListTile(
-            leading: Icon(Icons.unarchive_outlined),
-            title: Text('Unarchive', style: textStyle,),
+            leading: const Icon(Icons.unarchive_outlined),
+            title: const Text('Unarchive', style: textStyle,),
             onTap: () => Navigator.pop(context, NoteCommand(
               id!, 
               uid, 
@@ -46,8 +46,8 @@ class NoteActions extends StatelessWidget {
           ),
         if(id!=null && state != NoteState.deleted)
           ListTile(
-            leading: Icon(Icons.delete_outlined),
-            title: Text('Bin', style: textStyle,),
+            leading: const Icon(Icons.delete_outlined),
+            title: const Text('Bin', style: textStyle,),
             onTap: () => Navigator.pop(context, NoteCommand(
               id, 
               uid, 
@@ -58,8 +58,8 @@ class NoteActions extends StatelessWidget {
           ),
         if(state==NoteState.deleted)
           ListTile(
-            leading: Icon(Icons.restore),
-            title: Text('Restore', style: textStyle,),
+            leading: const Icon(Icons.restore),
+            title: const Text('Restore', style: textStyle,),
             onTap: () => Navigator.pop(context, NoteCommand(
               id!, 
               uid, 

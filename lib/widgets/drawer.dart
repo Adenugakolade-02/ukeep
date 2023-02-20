@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ukeep/imports/models.dart';
+import 'package:flutterfire_ui/auth.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -31,7 +32,7 @@ class AppDrawer extends StatelessWidget {
               Navigator.pop(context);
             }),
             DrawerItem(
-            iconData: Icons.archive_outlined, 
+            iconData: Icons.delete, 
             title: 'Bin', 
             isChecked: filter.noteState == NoteState.deleted, 
             onTap: (){
@@ -39,9 +40,9 @@ class AppDrawer extends StatelessWidget {
               Navigator.pop(context);
             }),
           DrawerItem(
-            iconData: Icons.settings_outlined, 
-            title: 'Settings', 
-            onTap: (){}
+            iconData: Icons.logout, 
+            title: 'Log Out', 
+            onTap: () => Navigator.pushNamed(context, '/signout')
             ),
           DrawerItem(
             iconData: Icons.help_center_outlined, 
@@ -131,7 +132,7 @@ class DrawerItem extends StatelessWidget {
     children: <Widget>[
       if(iconData!=null) Icon(iconData,
       size: iconSize,
-      color: isChecked ? Color(0xFF202124) : Color(0xFF5F6368),
+      color: isChecked ? const Color(0xFF202124) : const Color(0xFF5F6368),
       ),
       const SizedBox(width: 20,),
       Text(title,

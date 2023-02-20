@@ -45,7 +45,6 @@ class ColorPicker extends StatelessWidget {
               ),
               onTap: (){
                 if (color != note.color){
-                  debugPrint("Color is choosen");
                   note.editNote(color: color);
                 }
               },

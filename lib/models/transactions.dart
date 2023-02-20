@@ -1,17 +1,15 @@
-import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:ukeep/models/note.dart';
 
-@immutable
+// creates an abstract class to implement command pattern
 abstract class INotecommand{
   Future<void> execute();
   String getTitle() => '';
   Future<void> undo();
 }
 
-
+// Implements the abstract class INoteCommand
 class NoteCommand implements INotecommand{
     
   final String id;
@@ -28,9 +26,11 @@ class NoteCommand implements INotecommand{
     [this.dismiss = false] 
   );
   
+  // calls the execute function to update the note state on the firestore
   @override
   Future<void> execute() => updateNoteState(to, id, uid);
 
+  // creates a message function to send the name of the operation being carried out 
   @override
   String getTitle() {
     switch(to){
@@ -38,16 +38,18 @@ class NoteCommand implements INotecommand{
       case NoteState.deleted:
         return "Note has been moved to Bin";
       case NoteState.pinned:
-        return "Note pinned";
+        return from == NoteState.archieved
+          ? "Note pinned and unarchived"
+          : '';
       case NoteState.archieved:
-        return "Note Archieved";
+        return "Note Archived";
       default:
         switch (from){
 
           case NoteState.deleted:
             return "Note has been moved from trash";
           case NoteState.archieved:
-            return "Note has benn unarchieved";
+            return "Note has been unarchived";
           case NoteState.pinned:
             return "Note has been unpinned";
           default:
@@ -56,13 +58,17 @@ class NoteCommand implements INotecommand{
     }
   }
 
+  // creates an undo function for each operation carried out 
   @override
   Future<void> undo() => updateNoteState(from, id, uid);
 }
 
-// using scaffold messenger to revert changes,
+// creates a mixin that can be extended by all stateful widget 
 mixin NoteCommandHandler<T extends StatefulWidget> on State<T>{
   
+  // Executes the note command passed to it
+  // pops up a scaffold messanger stating the operation carried out
+  // displays a undo text button to  revert the executed command 
   Future<void> processCommand(ScaffoldState scaffoldState, NoteCommand noteCommand) async{
     await noteCommand.execute();
     final commandMessage = noteCommand.getTitle();
@@ -88,9 +94,11 @@ extension NoteQuery on QuerySnapshot {
 
 extension FireTransaction on Note{
  Future<dynamic> noteToFirestore(String uid) async{
-  debugPrint('arrived here connection');
+  // instantiates the user fire store collection
   final collection = userCollection(uid);
+  // creates a new firestore instance
   final instance = fireInstance();
+  // gets the current document being edited
   final docReference = collection.doc(id);
   return id == null 
   ? await collection.add(toJson()) 
@@ -103,7 +111,7 @@ extension FireTransaction on Note{
 
 
 
-
+// converts a firestore document snapshot to a instance of a note
 extension FromFireStore on QueryDocumentSnapshot{
   Note toNote(){
     final Map<String, dynamic>  data = this.data() as Map<String, dynamic>;
@@ -125,6 +133,7 @@ CollectionReference userCollection (String uid) => FirebaseFirestore.instance.co
 FirebaseFirestore  fireInstance()=> FirebaseFirestore.instance;
 DocumentReference noteDocument(String uid, String id) => userCollection(uid).doc(id);
 
+// updates the note state in the firestore
 Future<void> updateNoteState(NoteState state, String id, String uid){
   return updateNote({'noteState':state.index}, id, uid);
 }

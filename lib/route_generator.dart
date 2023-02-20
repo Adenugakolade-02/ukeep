@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:ukeep/models/note.dart';
 import 'package:ukeep/screens/noteEditor.dart';
+import 'package:ukeep/screens/sign_out_screen.dart';
 
 class RouteGenerator{
   static Route<dynamic>? generateRoute(RouteSettings settings){
@@ -19,6 +20,10 @@ class RouteGenerator{
           builder: (_) => NoteEditorScreen(note: note,)
           );
       }
+      case '/signout':
+        return MaterialPageRoute(
+          builder: (_) => const SignOut()
+          );
       default:
         return null;
     }

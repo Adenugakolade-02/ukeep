@@ -11,16 +11,20 @@ enum NoteState{
 }
 
 extension NoteStateX on NoteState{
+  // Checks if the current screen can create a new note
   bool get canCreate => this <= NoteState.pinned;
+  
+  // checks if the current note can Achievebe edited
   bool get canEdit => this < NoteState.deleted;
 
+  // creates a boolean operator to compare note states
   bool operator < (NoteState other) => (index) < (other.index);
   bool operator <=(NoteState other) => (index) <= (other.index);
 
   String get message {
     switch (this){
       case NoteState.archieved:
-        return 'note archieved';
+        return 'note archived';
       case NoteState.deleted:
         return 'note moved to bin';
       default:
@@ -31,7 +35,7 @@ extension NoteStateX on NoteState{
   String get filterName{
     switch (this){
       case NoteState.archieved:
-        return 'Archieved';
+        return 'Archived';
       case NoteState.deleted:
         return 'Bin';
       default:
@@ -72,7 +76,7 @@ class Note extends ChangeNotifier{
               modifiedAt = modifiedAt ?? DateTime.now(),
               color = color ?? Colors.white;
 
-
+  // obtains a list of notes from firestore document snapshot
   static List<Note?> fromQuery({QuerySnapshot? query}) => query!=null? query.toNotes() : [];
 
   bool get pinned => noteState == NoteState.pinned;
@@ -86,6 +90,7 @@ class Note extends ChangeNotifier{
     'noteState': noteState.index
   };
 
+  // updates the note parameters
   Note editNote({
     String? title,
     String? text,
@@ -97,15 +102,16 @@ class Note extends ChangeNotifier{
     if (color != null) this.color = color;
     if (state != null) this.noteState = state;
     notifyListeners();
-    debugPrint("Notify listener called");
     return this;
   
   }
 
+  // creates a  note copy
   Note copy(){
     return Note(title: title, text: text, noteState: noteState);
   }
 
+  // construct and equality operator for comparing note
   @override
   bool operator ==(other) => other is Note &&
   other.id == id &&
