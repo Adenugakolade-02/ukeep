@@ -37,7 +37,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
   @override
   void initState() {
     _note = widget.note;
-    _originNote = widget.note;
+    _originNote = _note.copy();
     
     _titleEditingController = TextEditingController(text: _note.title);
     _textEditingController = TextEditingController(text: _note.text);
@@ -69,7 +69,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
               primaryColor: _noteColor,
               scaffoldBackgroundColor: _noteColor,
               appBarTheme: Theme.of(context).appBarTheme.copyWith(
-                elevation: 0
+                elevation: 0,
+                iconTheme: const IconThemeData(
+                  color: Color(0xFF5F6368)
+                )
               )
             ),
             child: AnnotatedRegion<SystemUiOverlayStyle>(
@@ -86,6 +89,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
                     child: SizedBox(), 
                     preferredSize: Size(0,24)),
                   backgroundColor: _noteColor,
+
                 ),
                 body: buildBody(context, uid),
                 bottomNavigationBar: buildBottomAppBar(context,uid),
@@ -135,6 +139,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
         const SizedBox(height: 14,),
         TextField(
           controller: _textEditingController,
+          decoration: const InputDecoration(
+            border: InputBorder.none,
+            hintText: 'Text'
+          ),
           style: const TextStyle(
             color: Color(0xC2000000),
             fontSize: 18,
@@ -151,7 +159,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
     if(_note.noteState < NoteState.deleted)
       IconButton(
         onPressed: () => updateNoteState(uid, _note.pinned ? NoteState.others: NoteState.pinned), 
-        icon: Icon(_note.pinned ? Icons.push_pin : Icons.push_pin_outlined)
+        icon: Icon(_note.pinned ? Icons.push_pin : Icons.push_pin_outlined,
+        color: const Color(0xFF5F6368),
+        )
       ),
     if(_note.id != null && _note.noteState < NoteState.archieved)
       IconButton(
@@ -165,11 +175,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
             NoteState.archieved)
           )
         ), 
-        icon: const Icon(Icons.archive_outlined)),
+        icon: const Icon(Icons.archive_outlined, color: Color(0xFF5F6368),)),
     if(_note.noteState == NoteState.archieved)
       IconButton(
         onPressed: () => updateNoteState(uid, NoteState.others), 
-        icon: const Icon(Icons.unarchive_outlined)
+        icon: const Icon(Icons.unarchive_outlined, color: Color(0xFF5F6368),)
         )
   ];
 
@@ -186,6 +196,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
     BottomAppBar(
       child: Container(
         height: 56,
+        color: _noteColor,
         padding: const EdgeInsets.symmetric(horizontal: 9),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -222,10 +233,10 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
         value: _note,
         child: Consumer<Note>(builder: (_, note, __) => 
           Container(
-            
             color: note.color,
             padding: const EdgeInsets.symmetric(vertical: 15),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 const NoteActions(),
                 if(_note.noteState.canEdit) const SizedBox(height: 16,),

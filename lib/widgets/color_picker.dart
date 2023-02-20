@@ -7,10 +7,7 @@ import 'package:collection_ext/iterables.dart';
 class ColorPicker extends StatelessWidget {
   const ColorPicker({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    Note note = Provider.of<Note>(context);
-    const Iterable<Color> kNoteColors = [
+  final Iterable<Color> kNoteColors = const[
       Colors.white,
       Color(0xFFF28C82),
       Color(0xFFFABD03),
@@ -24,6 +21,10 @@ class ColorPicker extends StatelessWidget {
       Color(0xFFE6C9A9),
       Color(0xFFE9EAEE),
     ];
+
+  @override
+  Widget build(BuildContext context) {
+    Note note = Provider.of<Note>(context);
     // final kDefaultNoteColor = kNoteColors.first;
 
     return SingleChildScrollView(
@@ -44,6 +45,7 @@ class ColorPicker extends StatelessWidget {
               ),
               onTap: (){
                 if (color != note.color){
+                  debugPrint("Color is choosen");
                   note.editNote(color: color);
                 }
               },

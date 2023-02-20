@@ -92,15 +92,18 @@ class Note extends ChangeNotifier{
     Color? color,
     NoteState? state
   }){
+    if (title != null) this.title = title;
+    if (text != null) this.text = text;
+    if (color != null) this.color = color;
+    if (state != null) this.noteState = state;
     notifyListeners();
-    return Note(
-      title: title ?? this.title,  
-      text: text ?? this.text, 
-      color: color ?? this.color, 
-      noteState: state ?? this.noteState,
-      createdAt: createdAt,
-      modifiedAt: DateTime.now()
-      );
+    debugPrint("Notify listener called");
+    return this;
+  
+  }
+
+  Note copy(){
+    return Note(title: title, text: text, noteState: noteState);
   }
 
   @override
