@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -72,6 +73,7 @@ class _HomescrenState extends State<Homescren> with NoteCommandHandler{
       centerTitle: true,
       backgroundColor: Colors.transparent,
       elevation: 0,
+      
     )
     : SliverAppBar(
       backgroundColor: Colors.transparent,
@@ -239,8 +241,9 @@ class _HomescrenState extends State<Homescren> with NoteCommandHandler{
   Stream<List<Note?>> _createNoteStream(FilterState filter) {
     final user = Provider.of<UserData>(context).userD;
     final userUID = user['uid'] as String;
+    final userMetaData = user['metaData'] as UserMetadata;
     final sinceSignUp = DateTime.now().millisecondsSinceEpoch-
-      (user['metaData'].creationTime?.millisecondsSinceEpoch ?? 0);
+      (userMetaData.creationTime?.millisecondsSinceEpoch ?? 0);
     final useIndexes = sinceSignUp >= _10_mins_orderTime;
     final collection = userCollection(userUID);
     final fireQuery = filter.noteState == NoteState.others
@@ -250,7 +253,7 @@ class _HomescrenState extends State<Homescren> with NoteCommandHandler{
       : collection.where('noteState', isEqualTo: filter.noteState.index);
       
 
-    return (useIndexes ? fireQuery.orderBy('createdAt',descending: true): fireQuery)
+    return (fireQuery)
               .snapshots()
               .handleError((e) => debugPrint('Error in obtaining query $e'))
               .map((snapShot) => Note.fromQuery(query:snapShot));
@@ -265,7 +268,8 @@ class _HomescrenState extends State<Homescren> with NoteCommandHandler{
     }
     
    
-    final indexUnpinned = notes.indexWhere((note) => note!.pinned);
+    final indexUnpinned = notes.indexWhere((note) => !note!.pinned);
+    debugPrint('Here is the index $indexUnpinned');
     
     return indexUnpinned > -1
       ? {

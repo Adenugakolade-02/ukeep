@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ukeep/imports/models.dart';
 import 'package:flutterfire_ui/auth.dart';
-
+import 'package:firebase_auth/firebase_auth.dart';
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
 
@@ -40,14 +40,14 @@ class AppDrawer extends StatelessWidget {
               Navigator.pop(context);
             }),
           DrawerItem(
-            iconData: Icons.logout, 
-            title: 'Log Out', 
-            onTap: () => Navigator.pushNamed(context, '/signout')
-            ),
-          DrawerItem(
             iconData: Icons.help_center_outlined, 
             title: 'About Project', 
-            onTap: (){})
+            onTap: (){}),
+          
+          const Expanded(
+            child: SizedBox()
+          ),
+          const SignOutButton()
         ],
       )
     )

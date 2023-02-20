@@ -14,9 +14,9 @@ class AuthScreens extends StatelessWidget {
       stream: FirebaseAuth.instance.authStateChanges(),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          debugPrint("email ${snapshot.data?.email}");
-          debugPrint("userid ${snapshot.data?.uid}");
-          debugPrint('${snapshot.data?.photoURL}');
+          // debugPrint("email ${snapshot.data?.email}");
+          // debugPrint("userid ${snapshot.data?.uid}");
+          // debugPrint('${snapshot.data?.photoURL}');
           Provider.of<UserData>(context, listen: false).userSet = snapshot.data as User;
           return const Homescren();
         } else {

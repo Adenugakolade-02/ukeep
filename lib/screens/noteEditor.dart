@@ -156,7 +156,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
   List<Widget> buildTopActions(String uid) => [
     if(_note.noteState < NoteState.deleted)
       IconButton(
-        onPressed: () => updateNoteState(uid, _note.pinned ? NoteState.others: NoteState.pinned), 
+        onPressed: () async{ await updateNoteState(uid, _note.pinned ? NoteState.others: NoteState.pinned);}, 
         icon: Icon(_note.pinned ? Icons.push_pin : Icons.push_pin_outlined,
         color: const Color(0xFF5F6368),
         )
@@ -256,14 +256,14 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
       }
   }
 
-  void updateNoteState(String uid, NoteState state){
+  Future<void> updateNoteState(String uid, NoteState state) async{
     // checks if it is newly created note and updates it locally
     if(_note.id == null){
      _note.editNote(state: state);
      return; 
     }
-
-    processCommand(_scaffoldKey.currentState!, NoteCommand(
+    // _note.editNote(state: state);
+    await processCommand(_scaffoldKey.currentState!, NoteCommand(
       _note.id!, 
       uid , 
       _note.noteState, 
