@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../imports/models.dart';
@@ -20,7 +21,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
   late Note _originNote;
   late TextEditingController _titleEditingController;
   late TextEditingController _textEditingController;
-  late StreamSubscription<Note> _noteSubscription;
+  // late StreamSubscription<Note> _noteSubscription;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool get _isDirty => _note != _originNote;
@@ -48,7 +49,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
 
   @override
   void dispose() {
-    _noteSubscription.cancel();
+    // _noteSubscription.cancel();
     _titleEditingController.dispose();
     _textEditingController.dispose();
     super.dispose();
@@ -57,11 +58,63 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
 
   @override
   Widget build(BuildContext context) {
-    return Container();
+    final uid = Provider.of<UserData>(context).userD['uid'] as String;
+    return ChangeNotifierProvider.value(
+      value: _note,
+      child: Consumer<Note>(
+        builder: (_,__,___) => Hero(
+          tag: 'Note${_note.id}', 
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              primaryColor: _noteColor,
+              scaffoldBackgroundColor: _noteColor,
+              appBarTheme: Theme.of(context).appBarTheme.copyWith(
+                elevation: 0
+              )
+            ),
+            child: AnnotatedRegion<SystemUiOverlayStyle>(
+              value: SystemUiOverlayStyle.dark.copyWith(
+                statusBarColor: _noteColor,
+                systemNavigationBarColor: _noteColor,
+                systemNavigationBarIconBrightness: Brightness.dark,
+              ),
+              child: Scaffold(
+                key: _scaffoldKey,
+                appBar: AppBar(
+                  actions: buildTopActions(uid),
+                  bottom: const PreferredSize(
+                    child: SizedBox(), 
+                    preferredSize: Size(0,24)),
+                  backgroundColor: _noteColor,
+                ),
+                body: buildBody(context, uid),
+                bottomNavigationBar: buildBottomAppBar(context,uid),
+              ),
+            ),
+          )
+        ),
+      ),
+    );
   }
 
-  Widget buildBody(){
-    return Container();
+  Widget buildBody(BuildContext context, String uid){
+    return DefaultTextStyle(
+      style: const TextStyle(
+        color: Color(0xC2000000),
+        fontSize: 18,
+        height: 1.3125,
+      ), 
+      child: WillPopScope(
+        onWillPop: ()=>_onPop(uid),
+        child: Container(
+          height: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: SingleChildScrollView(
+            child: buildNoteDetails(),
+          ),
+        ),
+      )
+    );
   }
 
   Widget buildNoteDetails(){
@@ -77,7 +130,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
           ),
           maxLines: null,
           textCapitalization: TextCapitalization.sentences,
-          readOnly: _note.noteState.canEdit,
+          readOnly: !_note.noteState.canEdit,
         ),
         const SizedBox(height: 14,),
         TextField(
@@ -88,7 +141,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
             height: 1.3
           ),
           textCapitalization: TextCapitalization.sentences,
-          readOnly: _note.noteState.canCreate,
+          readOnly: !_note.noteState.canCreate,
         )
       ],
     );
@@ -98,7 +151,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
     if(_note.noteState < NoteState.deleted)
       IconButton(
         onPressed: () => updateNoteState(uid, _note.pinned ? NoteState.others: NoteState.pinned), 
-        icon: Icon(_note.pinned ? Icons.pin : Icons.pin_outlined)
+        icon: Icon(_note.pinned ? Icons.push_pin : Icons.push_pin_outlined)
       ),
     if(_note.id != null && _note.noteState < NoteState.archieved)
       IconButton(
@@ -122,29 +175,38 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
 
   Future<bool> _onPop(String uid)async {
     if(_isDirty){
-      _note
-        ..modifiedAt = DateTime.now()
-        ..noteToFirestore(uid);
+       _note.modifiedAt = DateTime.now();
+        await _note.noteToFirestore(uid);
       _originNote = _note;
     }
     return Future.value(true);
   }
 
-  Widget buildBottomAppBar() =>
+  Widget buildBottomAppBar(BuildContext context, String uid) =>
     BottomAppBar(
       child: Container(
         height: 56,
-        padding: EdgeInsets.symmetric(horizontal: 9),
+        padding: const EdgeInsets.symmetric(horizontal: 9),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             IconButton(
-              onPressed: _note.noteState.canEdit ? (){} : null, 
-              color: Color(0xFF5F6368),
+              onPressed: _note.noteState.canEdit 
+              ? () async{
+                if(_isDirty){
+                  debugPrint('Note title ${_note.title}');
+                  _note.modifiedAt = DateTime.now();
+                  await _note.noteToFirestore(uid);
+                  _originNote = _note;
+                }
+                // await _note.noteToFirestore(uid);
+              } 
+              : null, 
+              color: const Color(0xFF5F6368),
               icon: const Icon(Icons.add_box)
               ),
             IconButton(
-              onPressed: (){},
+              onPressed: ()=>showBottomSheet(context),
               icon: const Icon(Icons.more_vert)
             )
           ],
@@ -152,7 +214,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
       ),
     );
 
-  void showBottomSheet() async{
+  void showBottomSheet(BuildContext context) async{
     final command = await showModalBottomSheet<NoteCommand>(
       backgroundColor: _noteColor,
       context: context, 
@@ -160,20 +222,30 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
         value: _note,
         child: Consumer<Note>(builder: (_, note, __) => 
           Container(
+            
             color: note.color,
             padding: const EdgeInsets.symmetric(vertical: 15),
             child: Column(
               children: <Widget>[
-                NoteActions(),
-                if(_note.noteState.canEdit)
-                  const SizedBox(height: 16,)
-                
+                const NoteActions(),
+                if(_note.noteState.canEdit) const SizedBox(height: 16,),
+                if(_note.noteState.canEdit) const ColorPicker(),
+                const SizedBox(height:12)
               ],
             ),
           )
         )
       )
       );
+      if(command != null){
+        if(command.dismiss){
+          // ignore: use_build_context_synchronously
+          Navigator.pop(context, command);
+        }
+        else {
+          processCommand(_scaffoldKey.currentState!,command);
+        }
+      }
   }
 
   void updateNoteState(String uid, NoteState state){

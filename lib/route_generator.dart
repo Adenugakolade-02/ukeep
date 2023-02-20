@@ -10,7 +10,8 @@ class RouteGenerator{
 
     switch(settings.name){
       case '/editor':{
-        final arguments = settings.arguments as Map;
+        // final arguments = settings.arguments ??;
+        final arguments = settings.arguments == null? {}: settings.arguments as Map;
         final note = arguments['note'] ?? Note(
           title: '', text: '', noteState: NoteState.others);
         return MaterialPageRoute(

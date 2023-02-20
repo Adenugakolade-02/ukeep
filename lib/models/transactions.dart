@@ -87,13 +87,15 @@ extension NoteQuery on QuerySnapshot {
 }
 
 extension FireTransaction on Note{
- Future<dynamic> noteToFirestore(String uid){
+ Future<dynamic> noteToFirestore(String uid) async{
+  debugPrint('arrived here connection');
   final collection = userCollection(uid);
   final instance = fireInstance();
   final docReference = collection.doc(id);
   return id == null 
-  ? collection.add(toJson()) 
-  : instance.runTransaction((transaction) async{
+  ? await collection.add(toJson()) 
+  : await instance.runTransaction((transaction) async{
+      debugPrint('Instantiated connection');
       transaction.update(docReference, toJson());
   });
  }  

@@ -282,7 +282,9 @@ class _HomescrenState extends State<Homescren> with NoteCommandHandler{
 
   void onTap(Note note) async{
     final command = await Navigator.pushNamed(context, '/editor', arguments: {'note':note});
-    processCommand(_scaffoldKey.currentState!, command as NoteCommand);
+    if(command != null){
+      processCommand(_scaffoldKey.currentState!, command as NoteCommand);
+    }
   }
 
 }

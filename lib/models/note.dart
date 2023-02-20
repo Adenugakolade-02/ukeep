@@ -92,7 +92,7 @@ class Note extends ChangeNotifier{
     Color? color,
     NoteState? state
   }){
-    // notifyListeners();
+    notifyListeners();
     return Note(
       title: title ?? this.title,  
       text: text ?? this.text, 
