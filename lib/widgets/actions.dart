@@ -42,6 +42,7 @@ class NoteActions extends StatelessWidget {
               uid, 
               state, 
               NoteState.others,
+              true
               )),
           ),
         if(id!=null && state != NoteState.deleted)
@@ -65,6 +66,18 @@ class NoteActions extends StatelessWidget {
               uid, 
               state, 
               NoteState.others,
+              true
+              )),
+          ),
+        if(state == NoteState.deleted)
+          ListTile(
+            leading: const Icon(Icons.delete),
+            title: const Text('Delete', style: textStyle,),
+            onTap: ()=>Navigator.pop(context, NoteCommand(
+              id!,
+              uid,
+              state, 
+              state,
               true
               )),
           )

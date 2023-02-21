@@ -7,6 +7,7 @@ abstract class INotecommand{
   Future<void> execute();
   String getTitle() => '';
   Future<void> undo();
+  Future<void> delete();
 }
 
 // Implements the abstract class INoteCommand
@@ -61,6 +62,9 @@ class NoteCommand implements INotecommand{
   // creates an undo function for each operation carried out 
   @override
   Future<void> undo() => updateNoteState(from, id, uid);
+
+  @override
+  Future<void> delete() => deleteDocument(uid, id);
 }
 
 // creates a mixin that can be extended by all stateful widget 
@@ -70,6 +74,9 @@ mixin NoteCommandHandler<T extends StatefulWidget> on State<T>{
   // pops up a scaffold messanger stating the operation carried out
   // displays a undo text button to  revert the executed command 
   Future<void> processCommand(ScaffoldState scaffoldState, NoteCommand noteCommand) async{
+    if(noteCommand.from == noteCommand.to){
+      await noteCommand.delete();
+    }
     await noteCommand.execute();
     final commandMessage = noteCommand.getTitle();
     if(mounted && commandMessage.isNotEmpty){
@@ -112,7 +119,7 @@ extension FireTransaction on Note{
 
 
 // converts a firestore document snapshot to a instance of a note
-extension FromFireStore on QueryDocumentSnapshot{
+extension FromFireStore on DocumentSnapshot{
   Note toNote(){
     final Map<String, dynamic>  data = this.data() as Map<String, dynamic>;
     return Note(
@@ -140,4 +147,8 @@ Future<void> updateNoteState(NoteState state, String id, String uid){
 
 Future<void> updateNote(Map<String, dynamic> data, String id, String uid){
   return noteDocument(uid, id).update(data);
+}
+
+Future<void> deleteDocument(String uid, String id){
+  return noteDocument(uid, id).delete();
 }

@@ -108,7 +108,24 @@ class Note extends ChangeNotifier{
 
   // creates a  note copy
   Note copy(){
-    return Note(title: title, text: text, noteState: noteState);
+    return Note
+    (title: title, 
+    text: text, 
+    noteState: noteState, 
+    id: id,
+    createdAt: createdAt,
+    color: color,
+    modifiedAt: modifiedAt
+    );
+  }
+
+  void update(Note other){
+    title = other.title;
+    text = other.text;
+    color = other.color;
+    noteState = other.noteState;
+    modifiedAt = other.modifiedAt;
+    notifyListeners();
   }
 
   // construct and equality operator for comparing note

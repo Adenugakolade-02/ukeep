@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +21,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
   late Note _originNote;
   late TextEditingController _titleEditingController;
   late TextEditingController _textEditingController;
-  // late StreamSubscription<Note> _noteSubscription;
+  StreamSubscription? _noteSubscription;
 
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool get _isDirty => _note != _originNote;
@@ -47,7 +49,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
 
   @override
   void dispose() {
-    // _noteSubscription.cancel();
+    _noteSubscription!.cancel();
     _titleEditingController.dispose();
     _textEditingController.dispose();
     super.dispose();
@@ -57,43 +59,41 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
   @override
   Widget build(BuildContext context) {
     final uid = Provider.of<UserData>(context).userD['uid'] as String;
+    _watchNoteDocument(uid);
     return ChangeNotifierProvider.value(
       value: _note,
       child: Consumer<Note>(
-        builder: (_,__,___) => Hero(
-          tag: 'Note${_note.id}', 
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              primaryColor: _noteColor,
-              scaffoldBackgroundColor: _noteColor,
-              appBarTheme: Theme.of(context).appBarTheme.copyWith(
-                elevation: 0,
-                iconTheme: const IconThemeData(
-                  color: Color(0xFF5F6368)
-                )
+        builder: (_,note,___) => Theme(
+          data: Theme.of(context).copyWith(
+            primaryColor: _noteColor,
+            scaffoldBackgroundColor: _noteColor,
+            appBarTheme: Theme.of(context).appBarTheme.copyWith(
+              elevation: 0,
+              iconTheme: const IconThemeData(
+                color: Color(0xFF5F6368)
               )
+            )
+          ),
+          child: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: _noteColor,
+              systemNavigationBarColor: _noteColor,
+              systemNavigationBarIconBrightness: Brightness.dark,
             ),
-            child: AnnotatedRegion<SystemUiOverlayStyle>(
-              value: SystemUiOverlayStyle.dark.copyWith(
-                statusBarColor: _noteColor,
-                systemNavigationBarColor: _noteColor,
-                systemNavigationBarIconBrightness: Brightness.dark,
-              ),
-              child: Scaffold(
-                key: _scaffoldKey,
-                appBar: AppBar(
-                  actions: buildTopActions(uid),
-                  bottom: const PreferredSize(
-                    preferredSize: Size(0,24),
-                    child: SizedBox()),
-                  backgroundColor: _noteColor,
+            child: Scaffold(
+              key: _scaffoldKey,
+              appBar: AppBar(
+                actions: buildTopActions(uid),
+                bottom: const PreferredSize(
+                  preferredSize: Size(0,24),
+                  child: SizedBox()),
+                backgroundColor: _noteColor,
 
-                ),
-                body: buildBody(context, uid),
-                bottomNavigationBar: buildBottomAppBar(context,uid),
               ),
+              body: buildBody(context, uid),
+              bottomNavigationBar: buildBottomAppBar(context,uid),
             ),
-          )
+          ),
         ),
       ),
     );
@@ -156,7 +156,9 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
   List<Widget> buildTopActions(String uid) => [
     if(_note.noteState < NoteState.deleted)
       IconButton(
-        onPressed: () async{ await updateNoteState(uid, _note.pinned ? NoteState.others: NoteState.pinned);}, 
+        onPressed: () async{ 
+          await updateNoteState(uid, _note.pinned ? NoteState.others: NoteState.pinned);
+          }, 
         icon: Icon(_note.pinned ? Icons.push_pin : Icons.push_pin_outlined,
         color: const Color(0xFF5F6368),
         )
@@ -185,7 +187,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
     if(_isDirty){
        _note.modifiedAt = DateTime.now();
         await _note.noteToFirestore(uid);
-      _originNote = _note;
+      // _originNote = _note;
     }
     return Future.value(true);
   }
@@ -262,12 +264,46 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> with NoteCommandHan
      _note.editNote(state: state);
      return; 
     }
-    // _note.editNote(state: state);
     await processCommand(_scaffoldKey.currentState!, NoteCommand(
       _note.id!, 
       uid , 
       _note.noteState, 
       state
       ));
+    _note.editNote(state: state);
+  }
+
+  void _watchNoteDocument(String uid) {
+    if (_noteSubscription == null && uid != null && _note.id != null) {
+      _noteSubscription = noteDocument(_note.id!, uid).snapshots()
+        .map((snapshot) => snapshot.exists ? snapshot.toNote() : null)
+        .listen(_onCloudNoteUpdated);
+    }
+  }
+
+  void _onCloudNoteUpdated(Note? note) {
+    if (!mounted || _note == note) {
+      return;
+    }
+
+    refresh() {
+      _titleEditingController.text = _note.title;
+      _textEditingController.text = _note.text;
+      _originNote.update(note!);
+      _note.update(note);
+    }
+
+    if (_isDirty) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: const Text('The note is updated on cloud.'),
+        action: SnackBarAction(
+          label: 'Refresh',
+          onPressed: refresh,
+        ),
+        duration: const Duration(days: 1),
+      ));
+    } else {
+      refresh();
+    }
   }
 }
