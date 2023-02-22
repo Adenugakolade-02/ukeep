@@ -1,16 +1,24 @@
-# ukeep
+# Ukeep
 
-A new Flutter project.
+A Flutter note application that gives all the funtionalities of a note app
 
-## Getting Started
+### About 
+The flutter Note App is created with Firebase.
+Users can sign up, register, and update their passwords.
+The app's note-taking features include the ability to make new notes, edit existing ones, archive notes,delete notes and assign various colors to note
 
-This project is a starting point for a Flutter application.
+### Learning/Development Process
+During the course of development I learnt the the following:
+1. Building user authentication using firebase authentication.
+2. Transacting with firebase firestore which includes creating, updating and deleting documents
+3. Learnt and implemented command design pattern
+4. Learnt to write clean logical codes
+5. Learnt to create clean UI in flutter.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+#### Project Link
+[![Watch the video](https://img.youtube.com/vi/eNrL5TtXLss/sddefault.jpg)](https://youtu.be/eNrL5TtXLss)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+#### Credits
+
+[Yingxin Wu](https://github.com/xinthink)
